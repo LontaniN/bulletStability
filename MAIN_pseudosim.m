@@ -4,10 +4,12 @@ close all
 
 i = sqrt(-1);
 
-flags.Stabilize = false;  % compute the roll rate needed to stabilize the bullet and compute the new motion
+% flags.Stabilize = false;  % compute the roll rate needed to stabilize the bullet and compute the new motion
 flags.RollDamp = true;    % activate the damping in roll, the roll rate will decrease as the bullet travels
 flags.Animation = true;   % activate the 3D bullet motion animation
+flags.LowRes = false;     % activate to make the make the animation with a lower resolution geometry
 flags.gifExport = false;  % export the 3D animation as a GIF
+
 %% PARAMETERS
 sMax = 120000;                            % maximum downrange in calibers
 sV = linspace(0,sMax,15000);              % vector of downrange
@@ -19,7 +21,17 @@ safeMargin = 1.1;                         % safety margin to staying in the stab
 twistRateInch = 1/12;                     % turn/inches
 twistRate = twistRateInch * 2*pi/0.0254;  % rad/m
 
-load('SierraDataVar.mat')
+% Bullet / Projectile
+load("testBullet.mat")
+
+%%%%%%
+CD = coeffs.CD;
+CLa = coeffs.CLa;
+CMa = coeffs.CMa;
+CMqCMadot = coeffs.CMqCMadot;
+Clp = coeffs.Clp;
+CMpa = coeffs.CMpa;
+%%%%%%
 
 if exist("m",'var') == 0
     % geometry
@@ -56,15 +68,15 @@ phi0 = 0 * pi/180;  % rad% elevation from local horizon
 xi0 = 0 * pi/180;   % rad% initial yaw at muzzle
 betaDot = 25;       % rad/s% initial yaw rate
 xi0_prime = -i*d/v0 * betaDot;
-%% SCALE COEFFS TO HAVE STAR COEFFS
 
+%% SCALE COEFFS TO HAVE STAR COEFFS
 adim = (rho*S*d)/(2*m);
-CLa(2,:) = adim*CLa(2,:);
-CD(2,:) = adim*CD(2,:);
-CMa(2,:) = adim*CMa(2,:);
+CLa = adim*CLa;
+CD = adim*CD;
+CMa = adim*CMa;
 CMpa_star = adim*CMpa;
 Clp_star = adim*Clp;
-CMqCMadot(2,:) = adim*CMqCMadot(2,:);
+CMqCMadot = adim*CMqCMadot;
 
 %% COMPUTATIONS
 p = twistRate * v0;     % rad/s% roll rate
@@ -105,10 +117,10 @@ for j = 1:Ns
     end
 
     % Interpolate coefficients
-    CLa_star(j) = interp1(CLa(1,:), CLa(2,:), Ma(j));
-    CD_star(j) = interp1(CD(1,:), CD(2,:), Ma(j));
-    CMa_star = interp1(CMa(1,:), CMa(2,:), Ma(j));
-    CMqCMadot_star(j) = interp1(CMqCMadot(1,:), CMqCMadot(2,:), Ma(j));
+    CLa_star(j) = interp1(states.MACH, CLa, Ma(j));
+    CD_star(j) = interp1(states.MACH, CD, Ma(j));
+    CMa_star = interp1(states.MACH, CMa, Ma(j));
+    CMqCMadot_star(j) = interp1(states.MACH, CMqCMadot, Ma(j));
 
     P(j) = (Ix/Iy)*((p(j)*d)/v(j));
     M(j) = ky_2 * CMa_star;
@@ -136,56 +148,56 @@ fprintf('Barrel twist rate = 1 x %0.2f turn x inches\n', 1/twistRateInch);
 %% PLOT
 PLOTS
 
-if flags.Stabilize
-    %% CORRECTION FOR INSTABILITY
-    if Sg(1)<SgLimit(1)  % the minimum Sg occurs at the muzzle
-        PLimit = sqrt(SgLimit(1)*4*M(1));
-        pLimit = PLimit * (Iy/Ix) * v0/d;
-        RPMLimit = pLimit * 60/(2*pi);
-        twistRateLimit = pLimit/v0; % rad/m
-        twistRateLimit = twistRateLimit * 0.0254/(2*pi); % turn x inches
-
-        fprintf('\n')
-        fprintf('|| CORRECTION ||\n');
-        fprintf('Sg needed = %0.2f at muzzle exit\n',SgLimit(1))
-        fprintf('Values needed for dynamic stability:\n');
-        fprintf('Roll rate = %0.0f RPM\n',RPMLimit);
-        fprintf('Barrel twist rate = 1 x %0.2f turn x inches\n', 1/twistRateLimit);
-
-        %% COMPUTE TRAJECTORY OF MODES
-        deltaS = 0;
-        for j = 1:Ns
-            s = sV(j);
-            if j>2
-                v(j) = v0 * exp(-trapz(sV(2:j),CD_star_corr));
-                deltaS = sV(j) - sV(j-1);
-            else
-                v(j) = v0;
-            end
-            Ma(j) = v(j)/c;
-
-            % Interpolate coefficients
-            CLa_star_corr = interp1(CLa(1,:), CLa(2,:), Ma(j));
-            CD_star_corr(j) = interp1(CD(1,:), CD(2,:), Ma(j));
-            CMa_star_corr = interp1(CMa(1,:), CMa(2,:), Ma(j));
-            CMqCMadot_star_corr = interp1(CMqCMadot(1,:), CMqCMadot(2,:), Ma(j));
-
-            P(j) = (Ix/Iy)*((safeMargin*pLimit*d)/v(j));
-            M(j) = ky_2 * CMa_star_corr;
-            T(j) = CLa_star_corr + kx_2 * CMpa_star;
-            G(j) = g*d*cos(phi0)/v(j)^2;
-            H(j) = CLa_star_corr - CD_star_corr(j) - ky_2*CMqCMadot_star_corr;
-
-            % compute stability factor
-            Sg(j) = P(j)^2 / (4*M(j));
-            Sd(j) = 2*T(j) / H(j);
-            SgLimit(j) = 1/(Sd(j)*(2-Sd(j)));
-
-            % compute trajectory of modes
-            [alpha(j),beta(j),betaR(j),lambdaF(j),lambdaS(j)] = trajectoryPseudoSim(P(j),M(j),T(j),G(j),H(j),xi0,xi0_prime,s);
-
-        end
-        %% PLOT
-        PLOTS
-    end
-end
+% if flags.Stabilize
+%     %% CORRECTION FOR INSTABILITY
+%     if Sg(1)<SgLimit(1)  % the minimum Sg occurs at the muzzle
+%         PLimit = sqrt(SgLimit(1)*4*M(1));
+%         pLimit = PLimit * (Iy/Ix) * v0/d;
+%         RPMLimit = pLimit * 60/(2*pi);
+%         twistRateLimit = pLimit/v0; % rad/m
+%         twistRateLimit = twistRateLimit * 0.0254/(2*pi); % turn x inches
+% 
+%         fprintf('\n')
+%         fprintf('|| CORRECTION ||\n');
+%         fprintf('Sg needed = %0.2f at muzzle exit\n',SgLimit(1))
+%         fprintf('Values needed for dynamic stability:\n');
+%         fprintf('Roll rate = %0.0f RPM\n',RPMLimit);
+%         fprintf('Barrel twist rate = 1 x %0.2f turn x inches\n', 1/twistRateLimit);
+% 
+%         %% COMPUTE TRAJECTORY OF MODES
+%         deltaS = 0;
+%         for j = 1:Ns
+%             s = sV(j);
+%             if j>2
+%                 v(j) = v0 * exp(-trapz(sV(2:j),CD_star_corr));
+%                 deltaS = sV(j) - sV(j-1);
+%             else
+%                 v(j) = v0;
+%             end
+%             Ma(j) = v(j)/c;
+% 
+%             % Interpolate coefficients
+%             CLa_star(j) = interp1(states.MACH, CLa, Ma(j));
+%             CD_star(j) = interp1(states.MACH, CD, Ma(j));
+%             CMa_star = interp1(states.MACH, CMa, Ma(j));
+%             CMqCMadot_star(j) = interp1(states.MACH, CMqCMadot, Ma(j));
+% 
+%             P(j) = (Ix/Iy)*((safeMargin*pLimit*d)/v(j));
+%             M(j) = ky_2 * CMa_star_corr;
+%             T(j) = CLa_star_corr + kx_2 * CMpa_star;
+%             G(j) = g*d*cos(phi0)/v(j)^2;
+%             H(j) = CLa_star_corr - CD_star_corr(j) - ky_2*CMqCMadot_star_corr;
+% 
+%             % compute stability factor
+%             Sg(j) = P(j)^2 / (4*M(j));
+%             Sd(j) = 2*T(j) / H(j);
+%             SgLimit(j) = 1/(Sd(j)*(2-Sd(j)));
+% 
+%             % compute trajectory of modes
+%             [alpha(j),beta(j),betaR(j),lambdaF(j),lambdaS(j)] = trajectoryPseudoSim(P(j),M(j),T(j),G(j),H(j),xi0,xi0_prime,s);
+% 
+%         end
+%         %% PLOT
+%         PLOTS
+%     end
+% end

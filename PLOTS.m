@@ -88,47 +88,94 @@ if length(Sd) > 1
 end
 
 
-if flags.Animation == 1
+L = 0.0284; % HARCODED FOR TEST
+d = 0.0067056;
+if flags.Animation
+
     amp = 1;
-    [V, F] = stlread("bullet.stl");
-    f = figure();
-    obj = trimesh(V,'FaceColor',"k",'EdgeColor',"k",'Linestyle',"-",'FaceAlpha',0.5);
-    axis equal
-    xlabel('x')
-    view(60,15)
-    rotate(obj,[0,1,0],90)
-    ylim([min(beta)*1.3,max(beta)*1.3])
-    zlim([min(beta)*1.3 + 16,max(beta)*1.3 + 16])
+    margine = d/2;
 
-    ylim([-4,4])
-    zlim([-5+16,5+16])
+    if flags.LowRes
+        % LOW RESOLUTION ANIMATION
+        figure()
+        sl = surf(Z,Y,X);
+        sl.FaceAlpha = 0.55;
+        sl.FaceColor = "black";
+        sl.EdgeAlpha = 1;
+        obj = sl;
+        axis equal
+        xlabel('x')
+        view(-129,17)
 
-    % round(2/3*length(alpha)):2
-    % round(length(alpha)/2) 
+        startIndex = 1;
+        speed = 2; % jump od indexes during for loop
 
-    for j=round(length(alpha)/2):2:length(alpha)
-        if j == 1
-            deltaAlpha = alpha(j);
-            deltaBeta = beta(j);
-        else
-            deltaAlpha = alpha(j)-alpha(j-1);
-            deltaBeta = beta(j)-beta(j-1);
+        maxPitchDispl = max(deg2rad(alpha(startIndex:end)))*L + margine;
+        maxYawDispl = max(deg2rad(beta(startIndex:end)))*L + margine;
+        ylim([-maxYawDispl, maxYawDispl])
+        zlim([-maxPitchDispl, maxPitchDispl])
+
+        for j = startIndex:speed:length(alpha)
+
+
+            if j == startIndex
+                deltaAlpha = alpha(j);
+                deltaBeta = beta(j);
+            else
+                deltaAlpha = alpha(j)-alpha(j-1);
+                deltaBeta = beta(j)-beta(j-1);
+            end
+
+            rotate(obj,[0,1,0],-deltaAlpha*amp);
+            rotate(obj,[0,0,1],-deltaBeta*amp);
+
+            pause(0.0005)
+            if flags.gifExport
+                exportgraphics(gcf,'testAnimated.gif','Resolution',80,'Append',true);
+            end
         end
 
-        if Ma(j) >= 1.2
-            set(f.Children.Title,'String','Supersonic','Color','Red');
-%             title(ax,"Supersonic",'Color','Red')
-        elseif Ma(j) < 1.2 && Ma(j) > 0.85
-            set(f.Children.Title,'String','Transonic','Color',"#D95319");
-        else
-            set(f.Children.Title,'String','Subsonic');
-        end
+    else
+        % ANIMATION WITH LIGHTNING
+        figure()
+        s = [-45 170];
+        k = [0.6 .5 .6 5];
+        sl = surfl(Z,Y,X,s,k,'light');
+        sl(2).Color = 'w';
+        sl(1).EdgeColor = 'none';
+        sl(1).FaceColor = '#af7045';
+        obj = sl(1);
+        axis equal
+        xlabel('x')
+        view(-129,17)
+        % round(2/3*length(alpha)):2
 
-        rotate(obj,[0,1,0],-deltaAlpha*amp);
-        rotate(obj,[0,0,1],-deltaBeta*amp);
-        pause(0.0005)
-        if flags.gifExport
-            exportgraphics(gcf,'testAnimated.gif','Append',true);
+        startIndex = 1;
+        speed = 2; % jump od indexes during for loop
+
+        maxPitchDispl = max(deg2rad(alpha(startIndex:end)))*L + margine;
+        maxYawDispl = max(deg2rad(beta(startIndex:end)))*L + margine;
+        ylim([-maxYawDispl, maxYawDispl])
+        zlim([-maxPitchDispl, maxPitchDispl])
+
+        for j = startIndex:speed:length(alpha)
+
+
+            if j == startIndex
+                deltaAlpha = alpha(j);
+                deltaBeta = beta(j);
+            else
+                deltaAlpha = alpha(j)-alpha(j-1);
+                deltaBeta = beta(j)-beta(j-1);
+            end
+
+            rotate(obj,[0,1,0],-deltaAlpha*amp);
+            rotate(obj,[0,0,1],-deltaBeta*amp);
+
+            pause(0.0005)
+            if flags.gifExport
+                exportgraphics(gcf,'testAnimated.gif','Resolution',80,'Append',true);
+            end
         end
     end
 end
