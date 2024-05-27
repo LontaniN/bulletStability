@@ -21,10 +21,10 @@ for j = 1:Ns
     end
 
     Ma(j) = v(j)/c;
-    if Ma(j) < 1.2 && Ma(j-1) > 1.2
+    if j>1 && Ma(j) < 1.2 && Ma(j-1) > 1.2
         sTransonic = sV(j);
     end
-    if Ma(j) < 0.85 && Ma(j-1) > 0.85
+    if j>1 && Ma(j) < 0.85 && Ma(j-1) > 0.85
         sSubsonic = sV(j);
     end
 

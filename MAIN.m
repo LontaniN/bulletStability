@@ -10,8 +10,8 @@ flags.Animation = true;    % activate the 3D bullet motion animation
 flags.LowRes = false;      % plot a lower resolution of the 3D bullet for the animation
 flags.gifExport = false;   % export the 3D animation as a GIF
 %% PARAMETERS
-sMax = 160000;                % maximum downrange in calibers
-sV = linspace(0,sMax,15000);  % vector of downrange
+sMax = 15000;                % maximum downrange in calibers
+sV = linspace(0,sMax,7000);  % vector of downrange
 Ns = length(sV);
 
 safeMargin = 1.1;             % safety margin to staying in the stable region
@@ -21,7 +21,7 @@ twistRateInch = 1/12;                     % turn/inches
 twistRate = twistRateInch * 2*pi/0.0254;  % rad/m
 
 % Bullet / Projectile
-load("DATA\SierraDatcom.mat")
+load("DATA\9x19Para1.mat")
 
 %%%%%%
 CD = coeffs.CD;
@@ -42,7 +42,7 @@ g = 9.81;                % m/s^2
 c = sqrt(1.4*287*Temp);  % m/s% speed of sound
 
 %% INITIAL CONDITION
-v0 = 792.48;        % m/s% muzzle velocity
+% v0 comes with the DATA, otherwise specify it yourself
 v(1) = v0;
 Ma0 = v0/c;         % initial Mach number
 
