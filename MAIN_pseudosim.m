@@ -24,6 +24,7 @@ twistRate = twistRateInch * 2*pi/0.0254;  % rad/m
 % Bullet / Projectile
 load("testBullet.mat")
 
+
 %%%%%%
 CD = coeffs.CD;
 CLa = coeffs.CLa;

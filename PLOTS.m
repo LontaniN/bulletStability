@@ -87,9 +87,6 @@ if length(Sd) > 1
     grid on
 end
 
-
-L = 0.0284; % HARCODED FOR TEST
-d = 0.0067056;
 if flags.Animation
 
     amp = 1;
@@ -97,7 +94,7 @@ if flags.Animation
 
     if flags.LowRes
         % LOW RESOLUTION ANIMATION
-        figure()
+        f = figure();
         sl = surf(Z,Y,X);
         sl.FaceAlpha = 0.55;
         sl.FaceColor = "black";
@@ -126,18 +123,24 @@ if flags.Animation
                 deltaBeta = beta(j)-beta(j-1);
             end
 
+            if Ma(j) >= 1.2
+                set(f.Children.Title,'String','Supersonic','Color','Red');
+            elseif Ma(j) < 1.2 && Ma(j) > 0.85
+                set(f.Children.Title,'String','Transonic','Color',"#D95319");
+            else
+                set(f.Children.Title,'String','Subsonic','Color','black');
+            end
+
             rotate(obj,[0,1,0],-deltaAlpha*amp);
             rotate(obj,[0,0,1],-deltaBeta*amp);
 
             pause(0.0005)
-            if flags.gifExport
-                exportgraphics(gcf,'testAnimated.gif','Resolution',80,'Append',true);
-            end
+            %         exportgraphics(gcf,'testAnimated.gif','Append',true);
         end
 
     else
         % ANIMATION WITH LIGHTNING
-        figure()
+        f = figure()
         s = [-45 170];
         k = [0.6 .5 .6 5];
         sl = surfl(Z,Y,X,s,k,'light');
@@ -169,13 +172,19 @@ if flags.Animation
                 deltaBeta = beta(j)-beta(j-1);
             end
 
+            if Ma(j) >= 1.2
+                set(f.Children.Title,'String','Supersonic','Color','Red');
+            elseif Ma(j) < 1.2 && Ma(j) > 0.85
+                set(f.Children.Title,'String','Transonic','Color',"#D95319");
+            else
+                set(f.Children.Title,'String','Subsonic','Color','black');
+            end
+
             rotate(obj,[0,1,0],-deltaAlpha*amp);
             rotate(obj,[0,0,1],-deltaBeta*amp);
 
             pause(0.0005)
-            if flags.gifExport
-                exportgraphics(gcf,'testAnimated.gif','Resolution',80,'Append',true);
-            end
+            %             exportgraphics(gcf,'testAnimatedTrans.gif','Resolution',100,'Append',true);
         end
     end
 end
