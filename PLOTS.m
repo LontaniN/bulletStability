@@ -79,9 +79,9 @@ if length(Sd) > 1
     plot(sV(1:length(Ma)),Ma)
     ylabel('Mach [-]')
     yyaxis right
-    plot(sV(1:length(CD_star)),CD_star/adim)
+    plot(sV(1:length(CD_V)),CD_V/adim)
     hold on
-    plot(sV(1:length(CLa_star)),CLa_star/adim)
+    plot(sV(1:length(CLa_V)),CLa_V/adim)
     ylabel('Coeffs [-]')
     xlabel('Downrange [cal]')
     grid on
@@ -122,7 +122,7 @@ if flags.Animation
                 deltaAlpha = alpha(j)-alpha(j-1);
                 deltaBeta = beta(j)-beta(j-1);
             end
-
+            
             if Ma(j) >= 1.2
                 set(f.Children.Title,'String','Supersonic','Color','Red');
             elseif Ma(j) < 1.2 && Ma(j) > 0.85
@@ -140,7 +140,7 @@ if flags.Animation
 
     else
         % ANIMATION WITH LIGHTNING
-        f = figure()
+        f = figure();
         s = [-45 170];
         k = [0.6 .5 .6 5];
         sl = surfl(Z,Y,X,s,k,'light');
