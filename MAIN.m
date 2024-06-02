@@ -11,20 +11,20 @@ flags.gifExport = false;     % export the 3D animation as a GIF
 flags.maxInitialYaw = true;  % compute the trajectory starting with the maximum yaw angle specified, otherwise use the minimum one computed through Kent's equation
 
 %% PARAMETERS
-sMax = 150000;                % maximum downrange in calibers
+sMax = 10000;                % maximum downrange in calibers
 sV = linspace(0,sMax,12000);  % vector of downrange
 Ns = length(sV);
 
 safeMargin = 1.1;             % safety margin to staying in the stable region
 
-% barrel
-twistRateInch = 1/7;                     % turn/inches
+% BARREL
+twistRateInch = 1/9.84;                     % turn/inches
 twistRate = twistRateInch * 2*pi/0.0254;  % rad/m
 
-deltaMax = deg2rad(2); % rad  % MAXIMUM YAW AT MUZZLE, IT DETERMINES THE INITIAL COMPLEX YAW AND YAW RATE
+deltaMax = deg2rad(5); % rad  % MAXIMUM YAW AT MUZZLE, IT DETERMINES THE INITIAL COMPLEX YAW AND YAW RATE
 
 % Bullet / Projectile
-load("DATA\556Tungsten.mat")
+load("DATA\9x19Para1.mat")
 
 %%%%%%
 CD = coeffs.CD;
