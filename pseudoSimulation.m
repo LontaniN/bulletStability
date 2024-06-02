@@ -4,7 +4,7 @@ GyroCriteria = inf;
 for j = 1:Ns
     s = sV(j);
     if j>2
-        if alpha(j-1)<25 && beta(j-1)<25
+        if alpha(j-1)<15 && beta(j-1)<15
             v(j) = v0 * exp(-trapz(sV(2:j),CD_V));
             deltaS = sV(j) - sV(j-1);
             if flags.RollDamp
