@@ -4,6 +4,10 @@ close all
 
 i = sqrt(-1);
 
+addpath("source\")
+addpath("DATA\")
+
+%% FLAGS
 flags.RollDamp = true;       % activate the damping in roll, the roll rate will decrease as the bullet travels
 flags.Animation = true;      % activate the 3D bullet motion animation
 flags.LowRes = false;        % plot a lower resolution of the 3D bullet for the animation
