@@ -1,5 +1,5 @@
 
-%% TRAJECTORY
+%% EPYCYCLIC TRAJECTORY
 figure('Name','Tip trajectory')
 plot3(sV(1:length(alpha)),beta,alpha,"LineWidth",1.1)
 grid on
@@ -34,7 +34,17 @@ xlabel('yaw [deg]')
 ylabel('pitch [deg]')
 axis equal
 
-
+%% YAW OF REPOSE
+if length(Sd) > 1
+    figure('Name','Yaw of repose')
+    plot3(sV(1:length(alpha)),real(betaR),real(betaR),"LineWidth",1.1)
+    grid on
+    xlabel('downrange [cal]')
+    ylabel('yaw component [deg]')
+    zlabel('pitch component[deg]')
+else
+    fprintf('Yaw of repose = %0.3g deg\n', abs(betaR));
+end
 %% STABILITY DIAGRAM
 SdVec = linspace(0,2,1000);
 SgVec = 1./(SdVec.*(2-SdVec));
@@ -87,10 +97,17 @@ if length(Sd) > 1
     grid on
 end
 
+%% ANIMATION
 if flags.Animation
 
-    amp = 1;
-    margine = d/2;
+    if startPoint == 0
+        startIndex = 1;
+    else
+        startIndex = startPoint/100 * length(alpha);
+    end
+
+    maxPitchDispl = max(amp*deg2rad(alpha(startIndex:end)))*L + margine;
+    maxYawDispl = max(amp*deg2rad(beta(startIndex:end)))*L + margine;
 
     if flags.LowRes
         % LOW RESOLUTION ANIMATION
@@ -104,25 +121,19 @@ if flags.Animation
         xlabel('x')
         view(-129,17)
 
-        startIndex = 1;
-        speed = 2; % jump od indexes during for loop
-
-        maxPitchDispl = max(deg2rad(alpha(startIndex:end)))*L + margine;
-        maxYawDispl = max(deg2rad(beta(startIndex:end)))*L + margine;
         ylim([-maxYawDispl, maxYawDispl])
         zlim([-maxPitchDispl, maxPitchDispl])
 
-        for j = startIndex:speed:length(alpha)
-
+        for j = startIndex:round(speed):length(alpha)
 
             if j == startIndex
                 deltaAlpha = alpha(j);
                 deltaBeta = beta(j);
             else
-                deltaAlpha = alpha(j)-alpha(j-1);
-                deltaBeta = beta(j)-beta(j-1);
+                deltaAlpha = alpha(j) - alpha(j-round(speed));
+                deltaBeta = beta(j) - beta(j-round(speed));
             end
-            
+
             if Ma(j) >= 1.2
                 set(f.Children.Title,'String','Supersonic','Color','Red');
             elseif Ma(j) < 1.2 && Ma(j) > 0.85
@@ -131,11 +142,18 @@ if flags.Animation
                 set(f.Children.Title,'String','Subsonic','Color','black');
             end
 
-            rotate(obj,[0,1,0],-deltaAlpha*amp);
-            rotate(obj,[0,0,1],-deltaBeta*amp);
+            rotate(obj,[0,1,0],deltaAlpha*amp);
+            rotate(obj,[0,0,1],deltaBeta*amp);
 
             pause(0.0005)
-            %         exportgraphics(gcf,'testAnimated.gif','Append',true);
+            if flags.gifExport
+                if exist(animationFileName,'file') && j == startIndex
+                    error("The GIF file already exists, change the file name in MAIN.m")
+                end
+                if floor(i/3) == i/3
+                    exportgraphics(f,animationFileName,'Append',true,'Resolution',120);
+                end
+            end
         end
 
     else
@@ -153,23 +171,18 @@ if flags.Animation
         view(-129,17)
         % round(2/3*length(alpha)):2
 
-        startIndex = 1;
-        speed = 2; % jump od indexes during for loop
-
-        maxPitchDispl = max(deg2rad(alpha(startIndex:end)))*L + margine;
-        maxYawDispl = max(deg2rad(beta(startIndex:end)))*L + margine;
         ylim([-maxYawDispl, maxYawDispl])
         zlim([-maxPitchDispl, maxPitchDispl])
-
-        for j = startIndex:speed:length(alpha)
-
-
+        
+        i = 0;
+        for j = startIndex:round(speed):length(alpha)
+            i = i + 1;
             if j == startIndex
                 deltaAlpha = alpha(j);
                 deltaBeta = beta(j);
             else
-                deltaAlpha = alpha(j)-alpha(j-1);
-                deltaBeta = beta(j)-beta(j-1);
+                deltaAlpha = alpha(j) - alpha(j-round(speed));
+                deltaBeta = beta(j) - beta(j-round(speed));
             end
 
             if Ma(j) >= 1.2
@@ -180,11 +193,18 @@ if flags.Animation
                 set(f.Children.Title,'String','Subsonic','Color','black');
             end
 
-            rotate(obj,[0,1,0],-deltaAlpha*amp);
-            rotate(obj,[0,0,1],-deltaBeta*amp);
+            rotate(obj,[0,1,0],deltaAlpha*amp);
+            rotate(obj,[0,0,1],deltaBeta*amp);
 
             pause(0.0005)
-            %             exportgraphics(gcf,'testAnimatedTrans.gif','Resolution',100,'Append',true);
+            if flags.gifExport
+                if exist(animationFileName,'file') && j == startIndex
+                    error("The GIF file already exists, change the file name in MAIN.m")
+                end
+                if floor(i/3) == i/3
+                    exportgraphics(f,animationFileName,'Append',true,'Resolution',120);
+                end
+            end
         end
     end
 end

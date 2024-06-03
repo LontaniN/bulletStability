@@ -9,26 +9,35 @@ addpath("DATA\")
 
 %% FLAGS
 flags.RollDamp = true;       % activate the damping in roll, the roll rate will decrease as the bullet travels
+flags.maxInitialYaw = true;  % compute the trajectory starting with the maximum yaw angle specified, otherwise use the minimum one computed through Kent's equation
 flags.Animation = true;      % activate the 3D bullet motion animation
 flags.LowRes = false;        % plot a lower resolution of the 3D bullet for the animation
-flags.gifExport = false;     % export the 3D animation as a GIF
-flags.maxInitialYaw = true;  % compute the trajectory starting with the maximum yaw angle specified, otherwise use the minimum one computed through Kent's equation
+flags.gifExport = false;      % export the 3D animation as a GIF
 
 %% PARAMETERS
-sMax = 10000;                % maximum downrange in calibers
-sV = linspace(0,sMax,12000);  % vector of downrange
-Ns = length(sV);
+% Bullet / Projectile
+load("DATA\9x19Para1.mat")
+d = geom.DCENTR;
+r = d/2;
 
-safeMargin = 1.1;             % safety margin to staying in the stable region
+% Downrange 
+sMax_metres = 100;                    % m  % maximum downrange
+sMax = sMax_metres/d;                 % maximum downrange in calibers
+sV = linspace(0,sMax,12000);          % vector of downrange
+Ns = length(sV);
 
 % BARREL
 twistRateInch = 1/9.84;                     % turn/inches
-twistRate = twistRateInch * 2*pi/0.0254;  % rad/m
+twistRate = twistRateInch * 2*pi/0.0254;    % rad/m
 
 deltaMax = deg2rad(5); % rad  % MAXIMUM YAW AT MUZZLE, IT DETERMINES THE INITIAL COMPLEX YAW AND YAW RATE
 
-% Bullet / Projectile
-load("DATA\9x19Para1.mat")
+% Animation parameters
+amp = 1;                              % it multiplies the angles of the epycyclic trajectory, use it to better capture the movement if the angles are very small
+startPoint = 0;                       % [%]  % percentage of the flight from which you want the animation to begin, example: 66% means that the animation will start at 2/3 of the computed flight
+speed = 2;                            % speed up the animation, must be an integer!
+margine = d/2;                        % adjust the borders of the 3D plot of the animation
+animationFileName = "Animation.gif";  % name of the gif file that will be generate if flags.gifExport is set to true
 
 %%%%%%
 CD = coeffs.CD;
@@ -38,9 +47,6 @@ CMqCMadot = coeffs.CMqCMadot;
 Clp = coeffs.Clp;
 CMpa = coeffs.CMpa;
 %%%%%%
-
-d = geom.DCENTR;
-r = d/2;
 
 %% INITIAL CONDITIONS
 % environment
@@ -57,7 +63,7 @@ phi0 = 0 * pi/180;  % rad    % elevation from local horizon
 
 initPhase = deg2rad(0); % rad  % initial phase of the yaw at muzzle
 
-%% SCALE COEFFS TO HAVE STAR COEFFS
+%% SCALE COEFFS TO HAVE STAR COEFFS (From theory)
 adim = (rho*S*d)/(2*m);
 CLa = adim*CLa;
 CD = adim*CD;
