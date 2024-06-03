@@ -52,7 +52,9 @@ SgVec = 1./(SdVec.*(2-SdVec));
 figure('Name','Stability factors')
 plot(SdVec,SgVec,'LineWidth',1.5)
 hold on
-scatter(Sd,Sg,'filled')
+z = linspace(0,10,length(Sd));
+scatter(Sd,Sg,[],z,'filled')
+colormap(gca,"copper")
 % plot(Sd,Sg,'Marker','.','MarkerSize',20);
 grid on
 ylim([0,6])
@@ -95,6 +97,11 @@ if length(Sd) > 1
     ylabel('Coeffs [-]')
     xlabel('Downrange [cal]')
     grid on
+
+    fprintf('Minimum Sg = %0.2f\n',min(Sg))
+    fprintf('Maximum Sg = %0.2f\n',max(Sg))
+    fprintf('Minimum Sd = %0.2f\n',min(Sd))
+    fprintf('Maximum Sd = %0.2f\n',max(Sd))
 end
 
 %% ANIMATION
