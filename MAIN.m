@@ -9,28 +9,28 @@ addpath("DATA\")
 
 %% FLAGS
 flags.RollDamp = true;       % activate the damping in roll, the roll rate will decrease as the bullet travels
-flags.maxInitialYaw = true;  % compute the trajectory starting with the maximum yaw angle specified, otherwise use the minimum one computed through Kent's equation
 flags.Animation = true;      % activate the 3D bullet motion animation
 flags.LowRes = false;        % plot a lower resolution of the 3D bullet for the animation
 flags.gifExport = false;      % export the 3D animation as a GIF
 
 %% PARAMETERS
 % Bullet / Projectile
-load("DATA\9x19Para1.mat")
+load("DATA\50Cal_M33NATO.mat")
 d = geom.DCENTR;
 r = d/2;
 
 % Downrange 
-sMax_metres = 100;                    % m  % maximum downrange
+sMax_metres = 2000;                    % m  % maximum downrange
 sMax = sMax_metres/d;                 % maximum downrange in calibers
 sV = linspace(0,sMax,12000);          % vector of downrange
 Ns = length(sV);
 
 % BARREL
-twistRateInch = 1/9.84;                     % turn/inches
-twistRate = twistRateInch * 2*pi/0.0254;    % rad/m
+twistRateInch = 1/15;                           % turn/inches
+twistRate = twistRateInch * 2*pi/0.0254;          % rad/m
+twistRateCalTurn = 1/(twistRateInch * d/0.0254);  % cal/turn
 
-deltaMax = deg2rad(5); % rad  % MAXIMUM YAW AT MUZZLE, IT DETERMINES THE INITIAL COMPLEX YAW AND YAW RATE
+deltaMax = deg2rad(5); % rad  % MAXIMUM FIRST YAW, USUALLY MEASURED THROUGH EXPERIMENTS
 
 % Animation parameters
 amp = 1;                              % it multiplies the angles of the epycyclic trajectory, use it to better capture the movement if the angles are very small
@@ -105,15 +105,10 @@ SgLimit = 1/(Sd*(2-Sd));
 
 %% YAW AT MUZZLE, INITIAL PERTURBATION
 eps = sqrt(1 - 1/Sg) / (2*(Iy/Ix) - 1) * sin(deltaMax); % rad % IN-BORE YAW
+xi0 = sin(eps) * exp((i*initPhase));   % rad  % initial complex yaw at muzzle  
 xi0_prime = i * ((p*d)/v0) * sin(eps) * exp((i*initPhase)); % rad/m  % initial complex yaw-rate at muzzle
 
-if flags.maxInitialYaw
-    xi0 = sin(deltaMax) * exp((i*initPhase));   % rad  % initial complex yaw at muzzle
-else
-    xi0 = sin(eps) * exp((i*initPhase));   % rad  % initial complex yaw at muzzle  
-end
-
-betaDot = abs(v0/d * xi0_prime * i);
+betaDot = abs(v0/d * xi0_prime * i);  % rad/s  % initial yaw-rate
 
 %% TRAJECTORY COMPUTATION
 if length(states.MACH) == 1
@@ -121,6 +116,17 @@ if length(states.MACH) == 1
 else
     pseudoSimulation
 end
+
+%% MILLER'S FORMULA
+L_inch = 1/0.0254 * L; % inches
+d_inch = 1/0.0254 * d; % inches
+m_grain = 15432 * m; % grains
+l = L/d; % cal
+
+t = sqrt(30*m_grain/(2 * d_inch^3 * l * (1+l^2)));
+T = t * d_inch; % twist rate in inches x turn
+
+fprintf('Advised twist rate from Miller formula: 1 x %0.2f [turn x inches]\n',T)
 
 %% PLOTS
 PLOTS

@@ -98,10 +98,10 @@ if length(Sd) > 1
     xlabel('Downrange [cal]')
     grid on
 
-    fprintf('Minimum Sg = %0.2f\n',min(Sg))
-    fprintf('Maximum Sg = %0.2f\n',max(Sg))
-    fprintf('Minimum Sd = %0.2f\n',min(Sd))
-    fprintf('Maximum Sd = %0.2f\n',max(Sd))
+    fprintf('|| Minimum Sg = %0.2f ||\n',min(Sg))
+    fprintf('|| Maximum Sg = %0.2f ||\n',max(Sg))
+    fprintf('|| Minimum Sd = %0.2f ||\n',min(Sd))
+    fprintf('|| Maximum Sd = %0.2f ||\n',max(Sd))
 end
 
 %% ANIMATION
