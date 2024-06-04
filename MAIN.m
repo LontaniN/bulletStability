@@ -9,28 +9,28 @@ addpath("DATA\")
 
 %% FLAGS
 flags.RollDamp = true;       % activate the damping in roll, the roll rate will decrease as the bullet travels
-flags.Animation = true;      % activate the 3D bullet motion animation
+flags.Animation = false;      % activate the 3D bullet motion animation
 flags.LowRes = false;        % plot a lower resolution of the 3D bullet for the animation
 flags.gifExport = false;      % export the 3D animation as a GIF
 
 %% PARAMETERS
 % Bullet / Projectile
-load("DATA\50Cal_M33NATO.mat")
+load("DATA\M855.mat")
 d = geom.DCENTR;
 r = d/2;
 
 % Downrange 
-sMax_metres = 2000;                    % m  % maximum downrange
+sMax_metres = 300;                    % m  % maximum downrange
 sMax = sMax_metres/d;                 % maximum downrange in calibers
 sV = linspace(0,sMax,12000);          % vector of downrange
 Ns = length(sV);
 
 % BARREL
-twistRateInch = 1/15;                           % turn/inches
+twistRateInch = 1/8.4;                           % turn/inches
 twistRate = twistRateInch * 2*pi/0.0254;          % rad/m
 twistRateCalTurn = 1/(twistRateInch * d/0.0254);  % cal/turn
 
-deltaMax = deg2rad(5); % rad  % MAXIMUM FIRST YAW, USUALLY MEASURED THROUGH EXPERIMENTS
+deltaMax = deg2rad(1.8); % rad  % MAXIMUM FIRST YAW, USUALLY MEASURED THROUGH EXPERIMENTS
 
 % Animation parameters
 amp = 1;                              % it multiplies the angles of the epycyclic trajectory, use it to better capture the movement if the angles are very small

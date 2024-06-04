@@ -4,9 +4,9 @@ figure('Name','Tip trajectory')
 plot3(sV(1:length(alpha)),beta,alpha,"LineWidth",1.1)
 grid on
 hold on
-xlabel('downrange [cal]')
-ylabel('yaw [deg]')
-zlabel('pitch [deg]')
+xlabel('Downrange [cal]')
+ylabel('Yaw [deg]')
+zlabel('Pitch [deg]')
 if exist('sTransonic','var')
     % transonic plane
     [y,z] = meshgrid(-20:40:20); % Generate x and y data
@@ -30,8 +30,8 @@ zlim([min(alpha)*1.2,max(alpha)*1.2])
 figure('Name','Tip trajectory')
 plot(beta,alpha)
 grid on
-xlabel('yaw [deg]')
-ylabel('pitch [deg]')
+xlabel('Yaw [deg]')
+ylabel('Pitch [deg]')
 axis equal
 
 %% YAW OF REPOSE
@@ -39,12 +39,22 @@ if length(Sd) > 1
     figure('Name','Yaw of repose')
     plot3(sV(1:length(alpha)),real(betaR),real(betaR),"LineWidth",1.1)
     grid on
-    xlabel('downrange [cal]')
-    ylabel('yaw component [deg]')
-    zlabel('pitch component[deg]')
+    xlabel('Downrange [cal]')
+    ylabel('Yaw component [deg]')
+    zlabel('Pitch component[deg]')
 else
     fprintf('Yaw of repose = %0.3g deg\n', abs(betaR));
 end
+
+%% TOTAL ANGLE OF ATTACK
+if length(Sd) > 1
+    figure('Name','Total angle of attack')
+    plot(sV(1:length(alpha)),alphaTot(1:length(alpha)),"LineWidth",1.1)
+    grid on
+    xlabel('Downrange [cal]')
+    ylabel('Total Alpha [deg]')
+end
+
 %% STABILITY DIAGRAM
 SdVec = linspace(0,2,1000);
 SgVec = 1./(SdVec.*(2-SdVec));

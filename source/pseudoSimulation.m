@@ -46,12 +46,13 @@ for j = 1:Ns
     Sg(j) = P(j)^2 / (4*M(j));
     Sd(j) = 2*T(j) / H(j);
     SgLimit(j) = 1/(Sd(j)*(2-Sd(j)));
-
-
+    
     % compute trajectory of modes
-    [alpha(j),beta(j),betaR(j),lambdaF(j),lambdaS(j)] = trajectoryPseudoSim(P(j),M(j),T(j),G(j),H(j),xi0,xi0_prime,s);
+    [alpha(j),beta(j),betaR(j),lambdaF(j),lambdaS(j)] = trajectory(P(j),M(j),T(j),G(j),H(j),xi0,xi0_prime,s);
 
 end
+alphaTot = sqrt(alpha.^2 + beta.^2);
+
 %% DATA PRINT
 fprintf('Roll rate = %0.0f RPM\n',RPM(1));
 fprintf('Barrel twist rate = 1 x %0.2f turn x inches\n', 1/twistRateInch);

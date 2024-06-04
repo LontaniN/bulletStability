@@ -1,4 +1,4 @@
-function [alpha,beta,betaR,lambdaF,lambdaS]=trajectory(P,M,T,G,H,xi0,xi0_prime,s)
+function [alpha,beta,betaR,lambdaF,lambdaS] = trajectory(P,M,T,G,H,xi0,xi0_prime,s)
 
 i = sqrt(-1);
 %% COMPUTE THE TRAJECTORY
@@ -27,4 +27,5 @@ xi = fastTerm + slowTerm + i*betaR;
 alpha = real(xi) * 180/pi;
 beta = imag(xi) * 180/pi;
 
+betaR = betaR * 180/pi;
 end
