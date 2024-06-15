@@ -15,22 +15,23 @@ flags.gifExport = false;      % export the 3D animation as a GIF
 
 %% PARAMETERS
 % Bullet / Projectile
-load("DATA\M855.mat")
+load("DATA\9x39mm_SP5.mat")
 d = geom.DCENTR;
 r = d/2;
 
 % Downrange 
-sMax_metres = 300;                    % m  % maximum downrange
+sMax_metres = 400;                    % m  % maximum downrange
 sMax = sMax_metres/d;                 % maximum downrange in calibers
 sV = linspace(0,sMax,12000);          % vector of downrange
 Ns = length(sV);
 
 % BARREL
-twistRateInch = 1/8.4;                           % turn/inches
+twistRateInch = 1/8.3;                           % turn/inches
 twistRate = twistRateInch * 2*pi/0.0254;          % rad/m
 twistRateCalTurn = 1/(twistRateInch * d/0.0254);  % cal/turn
+n = twistRateCalTurn;
 
-deltaMax = deg2rad(1.8); % rad  % MAXIMUM FIRST YAW, USUALLY MEASURED THROUGH EXPERIMENTS
+deltaMax = deg2rad(5); % rad  % MAXIMUM FIRST YAW, USUALLY MEASURED THROUGH EXPERIMENTS
 
 % Animation parameters
 amp = 1;                              % it multiplies the angles of the epycyclic trajectory, use it to better capture the movement if the angles are very small
@@ -128,5 +129,20 @@ T = t * d_inch; % twist rate in inches x turn
 
 fprintf('Advised twist rate from Miller formula: 1 x %0.2f [turn x inches]\n',T)
 
+%% FLAT-FIRE DEFLECTION
+% in modern bullets external ballistics, the main two quantities that contribute 
+% to the deflection of the bullet from the expected trajectory are
+% the aerodynamic jump JA and the lateral throw-off TL
+% which depends on the in-bore yaw eps
+CLa0 = CLa_muzzle/adim;
+CMa0 = CMa_muzzle/adim;
+JA = -i * ((2*pi/n) * (1/ky_2 - 1/kx_2) * (CLa0/CMa0) * sin(eps)) * exp(i*initPhase);
+
+LN = geom.LNOSE;
+LCYL = geom.LCENTR;
+TL = i * (2*pi/n * (LN + LCYL/2 - XCG) * sin(eps)) * exp(i*initPhase);
+
+Deflection = norm(JA+TL) * sMax_metres * 1e2; %cm
+fprintf('The deflection at %d is %0.2f cm\n',sMax_metres,Deflection)
 %% PLOTS
 PLOTS
