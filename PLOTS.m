@@ -1,7 +1,7 @@
 
 %% EPYCYCLIC TRAJECTORY
 figure('Name','Tip trajectory')
-plot3(sV(1:length(alpha)),beta,alpha,"LineWidth",1.1)
+plot3(sV(1:length(alpha)),-beta,alpha,"LineWidth",1.1)
 grid on
 hold on
 xlabel('Downrange [cal]')
@@ -23,7 +23,7 @@ if exist('sSubsonic','var')
     plane.FaceColor = "blue";
     plane.FaceAlpha = 0.1;
 end
-ylim([min(beta)*1.2,max(beta)*1.2])
+ylim([min(-beta)*1.2,max(-beta)*1.2])
 zlim([min(alpha)*1.2,max(alpha)*1.2])
 
 
@@ -114,6 +114,16 @@ if length(Sd) > 1
     fprintf('|| Maximum Sd = %0.2f ||\n',max(Sd))
 end
 
+%% DEFLECTION
+figure('Name','Deflection vs Barrel twist rate')
+plot(nV_inches,Def_v,'LineWidth',1.5)
+hold on
+plot(nV_inches,JA_v,'--','LineWidth',1.5)
+plot(nV_inches,TL_v,'--','LineWidth',1.5)
+grid on
+xlabel('Barrel Twist Rate [inches/turn]')
+ylabel('Deflection [cm]')
+legend('Total Deflection','Aero-Jump Deflection','Lat-Throwoff Deflection')
 %% ANIMATION
 if flags.Animation
 

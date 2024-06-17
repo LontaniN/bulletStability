@@ -15,18 +15,18 @@ flags.gifExport = false;      % export the 3D animation as a GIF
 
 %% PARAMETERS
 % Bullet / Projectile
-load("DATA\9x39mm_SP5.mat")
+load("DATA\9x19Para.mat")
 d = geom.DCENTR;
 r = d/2;
 
 % Downrange 
-sMax_metres = 400;                    % m  % maximum downrange
+sMax_metres = 50;                    % m  % maximum downrange
 sMax = sMax_metres/d;                 % maximum downrange in calibers
 sV = linspace(0,sMax,12000);          % vector of downrange
 Ns = length(sV);
 
 % BARREL
-twistRateInch = 1/8.3;                           % turn/inches
+twistRateInch = 1/9.84;                           % turn/inches
 twistRate = twistRateInch * 2*pi/0.0254;          % rad/m
 twistRateCalTurn = 1/(twistRateInch * d/0.0254);  % cal/turn
 n = twistRateCalTurn;
@@ -36,7 +36,7 @@ deltaMax = deg2rad(5); % rad  % MAXIMUM FIRST YAW, USUALLY MEASURED THROUGH EXPE
 % Animation parameters
 amp = 1;                              % it multiplies the angles of the epycyclic trajectory, use it to better capture the movement if the angles are very small
 startPoint = 0;                       % [%]  % percentage of the flight from which you want the animation to begin, example: 66% means that the animation will start at 2/3 of the computed flight
-speed = 2;                            % speed up the animation, must be an integer!
+speed = 4;                            % speed up the animation, must be an integer!
 margine = d/2;                        % adjust the borders of the 3D plot of the animation
 animationFileName = "Animation.gif";  % name of the gif file that will be generate if flags.gifExport is set to true
 
@@ -62,7 +62,7 @@ Ma0 = v0/c;         % initial Mach number
 
 phi0 = 0 * pi/180;  % rad    % elevation from local horizon
 
-initPhase = deg2rad(0); % rad  % initial phase of the yaw at muzzle
+initPhase = deg2rad(0); % rad  % initial phase of the yaw at muzzle, angle between the vertically up-ward plane and the plane containing both the in-bore yaw and the bore axis
 
 %% SCALE COEFFS TO HAVE STAR COEFFS (From theory)
 adim = (rho*S*d)/(2*m);
@@ -105,7 +105,7 @@ Sd = 2*T / H;
 SgLimit = 1/(Sd*(2-Sd));
 
 %% YAW AT MUZZLE, INITIAL PERTURBATION
-eps = sqrt(1 - 1/Sg) / (2*(Iy/Ix) - 1) * sin(deltaMax); % rad % IN-BORE YAW
+eps = sqrt(1 - 1/Sg) * sin(deltaMax)/(2*(Iy/Ix) - 1); % rad % IN-BORE YAW
 xi0 = sin(eps) * exp((i*initPhase));   % rad  % initial complex yaw at muzzle  
 xi0_prime = i * ((p*d)/v0) * sin(eps) * exp((i*initPhase)); % rad/m  % initial complex yaw-rate at muzzle
 
@@ -144,5 +144,26 @@ TL = i * (2*pi/n * (LN + LCYL/2 - XCG) * sin(eps)) * exp(i*initPhase);
 
 Deflection = norm(JA+TL) * sMax_metres * 1e2; %cm
 fprintf('The deflection at %d is %0.2f cm\n',sMax_metres,Deflection)
+
+nMin_inches = 7;
+nMax_inches = 16;
+nMin = 1/(1/nMin_inches * d/0.0254);
+nMax = 1/(1/nMax_inches * d/0.0254);
+nV = linspace(nMin,nMax,100);
+
+JA_v = NaN(1,length(nV));
+TL_v = NaN(1,length(nV));
+Def_v = NaN(1,length(nV));
+
+for j = 1:length(nV)
+    JA_v(j) = i * ((2*pi/nV(j)) * (1/ky_2 - 1/kx_2) * (CLa0/CMa0) * sin(eps)) * exp(i*initPhase) * sMax_metres * 1e2;
+    TL_v(j) = -i * (2*pi/nV(j) * (LN + LCYL/2 - XCG) * sin(eps)) * exp(i*initPhase) * sMax_metres * 1e2;
+    Def_v(j) = norm(JA_v(j) - TL_v(j)); 
+
+    TL_v(j) = sign( dot( [real(JA_v(j)) , imag(JA_v(j))] , [real(TL_v(j)) , imag(TL_v(j))] ) ) * norm(TL_v(j));
+    JA_v(j) = norm(JA_v(j)); % always considered positive for standard projectiles
+
+end
+nV_inches = linspace(nMin_inches,nMax_inches,100);
 %% PLOTS
 PLOTS
