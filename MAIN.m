@@ -15,18 +15,18 @@ flags.gifExport = false;      % export the 3D animation as a GIF
 
 %% PARAMETERS
 % Bullet / Projectile
-load("DATA\9x19Para.mat")
+load("DATA\SierraDataSimple.mat")
 d = geom.DCENTR;
 r = d/2;
 
 % Downrange 
-sMax_metres = 50;                    % m  % maximum downrange
+sMax_metres = 400;                    % m  % maximum downrange
 sMax = sMax_metres/d;                 % maximum downrange in calibers
-sV = linspace(0,sMax,12000);          % vector of downrange
+sV = linspace(0,sMax,20000);          % vector of downrange
 Ns = length(sV);
 
 % BARREL
-twistRateInch = 1/9.84;                           % turn/inches
+twistRateInch = 1/7;                           % turn/inches
 twistRate = twistRateInch * 2*pi/0.0254;          % rad/m
 twistRateCalTurn = 1/(twistRateInch * d/0.0254);  % cal/turn
 n = twistRateCalTurn;
@@ -97,6 +97,7 @@ P = (Ix/Iy)*((p*d)/v0);
 M = ky_2 * CMa_muzzle;
 T = CLa_muzzle + kx_2 * CMpa;
 G = g*d*cos(phi0)/v0^2;
+G0 = G;
 H = CLa_muzzle - CD_muzzle - ky_2*CMqCMadot_muzzle;
 
 %% COMPUTE STABILITY FACTORS AT MUZZLE
@@ -142,7 +143,8 @@ LN = geom.LNOSE;
 LCYL = geom.LCENTR;
 TL = i * (2*pi/n * (LN + LCYL/2 - XCG) * sin(eps)) * exp(i*initPhase);
 
-Deflection = norm(JA+TL) * sMax_metres * 1e2; %cm
+DR = abs(DR);
+Deflection = ((norm(JA+TL) * sMax_metres) + DR(end)*d)* 1e2; %cm
 fprintf('The deflection at %d is %0.2f cm\n',sMax_metres,Deflection)
 
 nMin_inches = 7;

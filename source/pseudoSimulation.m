@@ -47,6 +47,7 @@ for j = 1:Ns
     Sd(j) = 2*T(j) / H(j);
     SgLimit(j) = 1/(Sd(j)*(2-Sd(j)));
     
+    DR(j) = i*1/ky_2 * (P(j)*G0/2) * (CLa_V(j)/CMa_V(j)) * s^2 * (1 + 2/3*(CD_V(j)*s) + 1/3*(CD_V(j)*s)^2);
     % compute trajectory of modes
     [alpha(j),beta(j),betaR(j),lambdaF(j),lambdaS(j)] = trajectory(P(j),M(j),T(j),G(j),H(j),xi0,xi0_prime,s);
 

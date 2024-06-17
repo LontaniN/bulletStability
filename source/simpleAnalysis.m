@@ -2,6 +2,7 @@
 Ma = Ma0 * ones(1,length(sV));  % define constant Mach array for Animation
 [alpha,beta,betaR,lambdaF,lambdaS] = trajectory(P,M,T,G,H,xi0,xi0_prime,sV);
 alphaTot = sqrt(alpha.^2 + beta.^2);
+DR = i.*1/ky_2 * (P*G0/2) * (CLa/CMa) * sV.^2 .* (1 + 2/3*(CD.*sV) + 1/3*(CD.*sV).^2);
 %% DYNAMIC STABILITY
 Sd = 2*T / H;
 SgLimit = 1/(Sd*(2-Sd));

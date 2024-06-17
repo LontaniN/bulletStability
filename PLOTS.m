@@ -27,6 +27,29 @@ ylim([min(-beta)*1.2,max(-beta)*1.2])
 zlim([min(alpha)*1.2,max(alpha)*1.2])
 
 
+
+figure('Name','Tip trajectory - scatter')
+
+colorMap = [linspace(176,2,100)',linspace(212,90,100)',linspace(235,160,100)']/255;
+
+line = plot(beta,alpha);
+line.HandleVisibility = 'off';
+hold on
+z = linspace(0,10,length(alpha));
+scat = scatter(flip(beta),flip(alpha),6,z,'filled');
+scat.HandleVisibility = 'off';
+colormap(colorMap);
+
+scatter(beta(1),alpha(1),25,'filled','MarkerFaceColor','green','MarkerEdgeColor','green')
+scatter(beta(end),alpha(end),25,'filled','MarkerFaceColor','red','MarkerEdgeColor','red')
+% plot(beta(1),alpha(1),'Marker','o','MarkerSize',5,'MarkerFaceColor','green','MarkerEdgeColor','green')
+% plot(beta(end),alpha(end),'Marker','o','MarkerSize',5,'MarkerFaceColor','red','MarkerEdgeColor','red')
+grid on
+xlabel('Yaw [deg]')
+ylabel('Pitch [deg]')
+axis equal
+legend('Start','End')
+
 figure('Name','Tip trajectory')
 plot(beta,alpha)
 grid on
@@ -37,14 +60,21 @@ axis equal
 %% YAW OF REPOSE
 if length(Sd) > 1
     figure('Name','Yaw of repose')
-    plot3(sV(1:length(alpha)),real(betaR),real(betaR),"LineWidth",1.1)
+    plot3(sV(1:length(alpha)),imag(betaR),real(betaR),"LineWidth",1.1)
     grid on
     xlabel('Downrange [cal]')
     ylabel('Yaw component [deg]')
     zlabel('Pitch component[deg]')
+
+    figure('Name','Yaw of repose vs downrange distance')
+    plot(sV(1:length(alpha)),abs(betaR))
+    grid on
+    xlabel('Downrange [cal]')
+    ylabel('Yaw of repose [deg]')
 else
     fprintf('Yaw of repose = %0.3g deg\n', abs(betaR));
 end
+
 
 %% TOTAL ANGLE OF ATTACK
 if length(Sd) > 1
@@ -124,6 +154,14 @@ grid on
 xlabel('Barrel Twist Rate [inches/turn]')
 ylabel('Deflection [cm]')
 legend('Total Deflection','Aero-Jump Deflection','Lat-Throwoff Deflection')
+
+figure('Name','Gyroscopic Drift')
+plot(DR*d*1e2,sV)
+grid on
+xlabel('Drift [cm]')
+ylabel('Downrange distance [calibres]')
+
+
 %% ANIMATION
 if flags.Animation
 
