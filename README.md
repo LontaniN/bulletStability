@@ -1,4 +1,4 @@
-![immagine](https://github.com/LontaniN/bulletStability/assets/93401408/890f87a4-7c4b-40db-b765-c49cedf3db93)# bulletStability
+# bulletStability
 Codes for the analysis of stability of bullets and projectiles through the linearized theory that can be found in the "Modern Exterior Ballistics: The Launch and Flight Dynamics of Symmetric Projectiles" by Robert L. McCoy.
 
 The bullet loaded is a .308 Sierra International Bullet tabulated in McCoy's book, with all the relevant aerodynamic coefficients.
@@ -14,5 +14,7 @@ Run this code to compute the epicyclic trajectory of the bullet. It loads the da
 ### PLOTS
 Containts the plots code, including the animation one.
 
+
 ![immagine](https://github.com/LontaniN/bulletStability/assets/93401408/c2c905f9-65ce-48ab-bcf3-e813e102bb97)
 
+[traj3D_9x19Para_FMJ_124gr.pdf](https://github.com/user-attachments/files/15903448/traj3D_9x19Para_FMJ_124gr.pdf)
