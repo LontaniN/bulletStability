@@ -14,3 +14,9 @@ Run this code to compute the epicyclic trajectory of the bullet. It loads the da
 ### PLOTS
 Containts the plots code, including the animation one.
 
+
+![immagine](https://github.com/LontaniN/bulletStability/assets/93401408/c2c905f9-65ce-48ab-bcf3-e813e102bb97)
+
+![immagine](https://github.com/LontaniN/bulletStability/assets/93401408/644f9364-7cf3-4709-a968-465529a1206d)
+
+
