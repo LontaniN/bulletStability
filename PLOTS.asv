@@ -340,4 +340,70 @@ if flags.Animation
     end
 end
 
+%% VALUE FOR TABLE
+% 1/twistRateInch
+% rad2deg(eps)
+% sMax_metres
+% 0
+% rad2deg(deltaMax)
+% p(1)*60/(2*pi)
+% p(end)*60/(2*pi)
+% v(1)
+% v(end)
+% Ma(1)
+% Ma(end)
+% Sg(1)
+% Sg(end)
+% Sd(1)
+% Sd(end)
+% alphaTot(end)
+% norm(betaR(1))
+% norm(betaR(end))
+% norm(JA)*sMax_metres*1e2
+% norm(TL)*sMax_metres*1e2
+% DR(end)*d*1e2
+% Deflection(end)
+%% PDF EXPORT
+% traj3D_fig
+% traj2D_fig
+% alphaTot_fig
+% stab_fig
+% machCoeff_fig
+% defBarrel_fig
+% drift_fig
 
+dim2 = 0.5;
+dim = 0.9;
+
+exportStandardizedFigure3D(traj3D_fig,strcat('traj3D_',projectile),dim2,'overwriteFigure',true,...
+    'figurePath',strcat(projectile,'_fig'),'addMarkers',false,'changeColors',false)
+
+exportStandardizedFigure3D(traj3D_fig2,strcat('traj3D2_',projectile),dim2,'overwriteFigure',true,...
+    'figurePath',strcat(projectile,'_fig'),'addMarkers',false,'changeColors',false)
+
+exportStandardizedFigure(traj2D_fig,strcat('traj2D_',projectile),dim2,'overwriteFigure',true,...
+    'figurePath',strcat(projectile,'_fig'),'addMarkers',false,'changeColors',false)
+
+exportStandardizedFigure(alphaTot_fig,strcat('alphaTot_',projectile),dim,'overwriteFigure',true,...
+    'figurePath',strcat(projectile,'_fig'),'addMarkers',false,'changeColors',false)
+
+exportStandardizedFigure(stab_fig,strcat('stab_',projectile),dim2,'overwriteFigure',true,...
+    'figurePath',strcat(projectile,'_fig'),'addMarkers',false,'changeColors',false)
+
+exportStandardizedFigure(defBarrel_fig,strcat('defBarrel_',projectile),dim2,'overwriteFigure',true,...
+    'figurePath',strcat(projectile,'_fig'),'addMarkers',false,'changeColors',false)
+
+exportStandardizedFigure(drift_fig,strcat('drift_',projectile),dim2,'overwriteFigure',true,...
+    'figurePath',strcat(projectile,'_fig'),'addMarkers',false,'changeColors',false)
+
+exportStandardizedFigure(machCoeff_fig,strcat('machCoeff_',projectile),dim2,'overwriteFigure',true,...
+    'figurePath',strcat(projectile,'_fig'),'addMarkers',false,'changeColors',false,'changeLineStyle',true)
+
+% projectile geometry
+% showProjectile;
+% 
+% exportStandardizedFigure(Projectile3D,strcat('3Dgeom_',projectile),dim2,'overwriteFigure',true,...
+%     'figurePath',strcat(projectile,'_fig'),'addMarkers',false,'changeColors',false,'changeLineStyle',false)
+% 
+% exportStandardizedFigure(Projectile2D,strcat('2Dgeom_',projectile),dim2,'overwriteFigure',true,...
+%     'figurePath',strcat(projectile,'_fig'),'addMarkers',false,'changeColors',false,'changeLineStyle',false)

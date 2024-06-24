@@ -1,12 +1,14 @@
 p = ones(Ns,1) * p;
 deltaS = 0;
 GyroCriteria = inf;
+ttime = 0;
 for j = 1:Ns
     s = sV(j);
     if j>2
         if alpha(j-1)<15 && beta(j-1)<15
             v(j) = v0 * exp(-trapz(sV(2:j),CD_V));
             deltaS = sV(j) - sV(j-1);
+            ttime = ttime + deltaS*d/v(j) ;
             if flags.RollDamp
                 Kp = -(kx_2 * Clp + CD_V(j-1));
                 pdv_0 = p(1)*d/v0;
@@ -49,7 +51,7 @@ for j = 1:Ns
     
     DR(j) = i*1/ky_2 * (P(j)*G0/2) * (CLa_V(j)/CMa_V(j)) * s^2 * (1 + 2/3*(CD_V(j)*s) + 1/3*(CD_V(j)*s)^2);
     % compute trajectory of modes
-    [alpha(j),beta(j),betaR(j),lambdaF(j),lambdaS(j)] = trajectory(P(j),M(j),T(j),G(j),H(j),xi0,xi0_prime,s);
+    [alpha(j),beta(j),betaR(j),lambdaF(j),lambdaS(j),fastFreq(j),slowFreq(j)] = trajectory(P(j),M(j),T(j),G(j),H(j),xi0,xi0_prime,s,v(j),d);
 
 end
 alphaTot = sqrt(alpha.^2 + beta.^2);

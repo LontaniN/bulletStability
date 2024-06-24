@@ -9,24 +9,29 @@ addpath("DATA\")
 
 %% FLAGS
 flags.RollDamp = true;       % activate the damping in roll, the roll rate will decrease as the bullet travels
-flags.Animation = false;      % activate the 3D bullet motion animation
+flags.Animation = true;      % activate the 3D bullet motion animation
 flags.LowRes = false;        % plot a lower resolution of the 3D bullet for the animation
-flags.gifExport = false;      % export the 3D animation as a GIF
+flags.videoExport = false;      % export the 3D animation as a video
 
 %% PARAMETERS
 % Bullet / Projectile
-load("DATA\SierraDataSimple.mat")
+projectilePath = "DATA\7mm_twenty_nine_hunt.mat";
+
+projectile = erase(projectilePath,"DATA\");
+projectile = erase(projectile,".mat");
+
+load(projectilePath)
 d = geom.DCENTR;
 r = d/2;
 
 % Downrange 
-sMax_metres = 400;                    % m  % maximum downrange
+sMax_metres = 300;                    % m  % maximum downrange
 sMax = sMax_metres/d;                 % maximum downrange in calibers
 sV = linspace(0,sMax,20000);          % vector of downrange
 Ns = length(sV);
 
 % BARREL
-twistRateInch = 1/7;                           % turn/inches
+twistRateInch = 1/7.3;                           % turn/inches
 twistRate = twistRateInch * 2*pi/0.0254;          % rad/m
 twistRateCalTurn = 1/(twistRateInch * d/0.0254);  % cal/turn
 n = twistRateCalTurn;
@@ -36,9 +41,8 @@ deltaMax = deg2rad(5); % rad  % MAXIMUM FIRST YAW, USUALLY MEASURED THROUGH EXPE
 % Animation parameters
 amp = 1;                              % it multiplies the angles of the epycyclic trajectory, use it to better capture the movement if the angles are very small
 startPoint = 0;                       % [%]  % percentage of the flight from which you want the animation to begin, example: 66% means that the animation will start at 2/3 of the computed flight
-speed = 4;                            % speed up the animation, must be an integer!
+speed = 7;                            % speed up the animation, must be an integer!
 margine = d/2;                        % adjust the borders of the 3D plot of the animation
-animationFileName = "Animation.gif";  % name of the gif file that will be generate if flags.gifExport is set to true
 
 %%%%%%
 CD = coeffs.CD;
@@ -54,9 +58,10 @@ CMpa = coeffs.CMpa;
 Temp = 298;              % K
 rho = 1.225;             % kg/m^2
 g = 9.81;                % m/s^2
-c = sqrt(1.4*287*Temp);  % m/s% speed of sound
+c = sqrt(1.4*287.14*Temp);  % m/s% speed of sound
 
 % v0 comes with the DATA, otherwise specify it yourself
+
 v(1) = v0;
 Ma0 = v0/c;         % initial Mach number
 
@@ -74,7 +79,7 @@ Clp = adim*Clp;
 CMqCMadot = adim*CMqCMadot;
 
 %% IMPORTANT QUANTITIES
-p = twistRate * v0;   % rad/s% roll rate
+p = twistRate * v(1);   % rad/s% roll rate
 RPM = p * 60/(2*pi);  % RPM rotation per minute
 
 kx_2 = m*d^2 / Ix;
@@ -93,10 +98,10 @@ else
     CMqCMadot_muzzle = CMqCMadot;
 end
 
-P = (Ix/Iy)*((p*d)/v0);
+P = (Ix/Iy)*((p*d)/v(1));
 M = ky_2 * CMa_muzzle;
 T = CLa_muzzle + kx_2 * CMpa;
-G = g*d*cos(phi0)/v0^2;
+G = g*d*cos(phi0)/v(1)^2;
 G0 = G;
 H = CLa_muzzle - CD_muzzle - ky_2*CMqCMadot_muzzle;
 
@@ -158,14 +163,15 @@ TL_v = NaN(1,length(nV));
 Def_v = NaN(1,length(nV));
 
 for j = 1:length(nV)
-    JA_v(j) = i * ((2*pi/nV(j)) * (1/ky_2 - 1/kx_2) * (CLa0/CMa0) * sin(eps)) * exp(i*initPhase) * sMax_metres * 1e2;
-    TL_v(j) = -i * (2*pi/nV(j) * (LN + LCYL/2 - XCG) * sin(eps)) * exp(i*initPhase) * sMax_metres * 1e2;
-    Def_v(j) = norm(JA_v(j) - TL_v(j)); 
+    JA_v(j) = -i * ((2*pi/nV(j)) * (1/ky_2 - 1/kx_2) * (CLa0/CMa0) * sin(eps)) * exp(i*initPhase) * sMax_metres * 1e2;
+    TL_v(j) = i * (2*pi/nV(j) * (LN + LCYL/2 - XCG) * sin(eps)) * exp(i*initPhase) * sMax_metres * 1e2;
+    Def_v(j) = norm(JA_v(j) + TL_v(j)); 
 
     TL_v(j) = sign( dot( [real(JA_v(j)) , imag(JA_v(j))] , [real(TL_v(j)) , imag(TL_v(j))] ) ) * norm(TL_v(j));
     JA_v(j) = norm(JA_v(j)); % always considered positive for standard projectiles
 
 end
 nV_inches = linspace(nMin_inches,nMax_inches,100);
+
 %% PLOTS
 PLOTS

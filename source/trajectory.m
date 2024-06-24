@@ -1,4 +1,4 @@
-function [alpha,beta,betaR,lambdaF,lambdaS] = trajectory(P,M,T,G,H,xi0,xi0_prime,s)
+function [alpha,beta,betaR,lambdaF,lambdaS,fastFreq,slowFreq] = trajectory(P,M,T,G,H,xi0,xi0_prime,s,V,d)
 
 i = sqrt(-1);
 %% COMPUTE THE TRAJECTORY
@@ -22,6 +22,8 @@ betaR = (P*G)/(M + i*P*T);
 fastTerm = KF0_exp * exp((lambdaF + i*phiF_prime).*s);
 slowTerm = KS0_exp * exp((lambdaS + i*phiS_prime).*s);
 
+fastFreq = (phiF_prime*V)/(2*pi*d);
+slowFreq = (phiS_prime*V)/(2*pi*d);
 % Compute the points of the trajectory
 xi = fastTerm + slowTerm + i*betaR;
 alpha = real(xi) * 180/pi;
